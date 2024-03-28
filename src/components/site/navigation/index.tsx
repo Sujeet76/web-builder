@@ -1,11 +1,12 @@
 import { ModeToggle } from "@/components/global/mode-toggler";
 import { UserButton } from "@clerk/nextjs";
+import { User } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
 interface Props {
-  user: "";
+  user: User | undefined;
 }
 
 const Navigation: React.FC<Props> = (props) => {

@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
       }}
     >
       <main className='h-full'>
-        <Navigation user='' />
+        <Navigation user={undefined} />
         {children}
       </main>
     </ClerkProvider>
