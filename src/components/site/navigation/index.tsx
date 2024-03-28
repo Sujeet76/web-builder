@@ -10,7 +10,7 @@ interface Props {
 
 const Navigation: React.FC<Props> = (props) => {
   return (
-    <div className='p-4 flex items-center justify-between z-50 backdrop-blur-md'>
+    <div className='fixed top-0 w-full p-4 flex items-center justify-between z-50 bg-background/80 backdrop-blur-md'>
       <aside className='flex items-center gap-2'>
         <Image
           src={"./assets/plura-logo.svg"}

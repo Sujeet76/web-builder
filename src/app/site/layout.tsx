@@ -5,7 +5,11 @@ import { ReactNode } from "react";
 
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
-    <ClerkProvider appearance={{ baseTheme: dark }}>
+    <ClerkProvider
+      appearance={{
+        baseTheme: dark,
+      }}
+    >
       <main className='h-full'>
         <Navigation user='' />
         {children}
