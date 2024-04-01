@@ -1,12 +1,13 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Agency } from "@prisma/client";
+import { v4 } from "uuid";
 
-// import { NumberInput } from "@tremor/react";
+import { NumberInput } from "@tremor/react";
 import {
   Card,
   CardContent,
@@ -37,9 +38,17 @@ import {
 import { AgencyFormSchema } from "@/schema";
 import { Input } from "../ui/input";
 import { Switch } from "../ui/switch";
-import { saveActivityLogsNotification } from "@/lib/queries";
+import {
+  deleteAgency,
+  initUser,
+  saveActivityLogsNotification,
+  updateAgencyDetails,
+  upsertAgency,
+} from "@/lib/queries";
 import { Button } from "../ui/button";
 import Loading from "../global/loading";
+import { useToast } from "../ui/use-toast";
+import FileUpload from "../global/file-upload";
 
 interface Props {
   data?: Partial<Agency>;
@@ -47,6 +56,7 @@ interface Props {
 
 const AgencyDetails: React.FC<Props> = ({ data }) => {
   const router = useRouter();
+  const { toast } = useToast();
   const [deletingAgency, setDeletingAgency] = useState(false);
   const form = useForm<z.infer<typeof AgencyFormSchema>>({
     mode: "onChange",
@@ -67,12 +77,97 @@ const AgencyDetails: React.FC<Props> = ({ data }) => {
 
   const isLoading = form.formState.isSubmitting;
 
-  const handleSubmit = async (data: z.infer<typeof AgencyFormSchema>) => {
-    console.log(data);
+  useEffect(() => {
+    if (data) form.reset(data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+  const handleSubmit = async (values: z.infer<typeof AgencyFormSchema>) => {
+    try {
+      let newUserData;
+      let customerId;
+      if (!data?.id) {
+        const bodyData = {
+          name: values.name,
+          email: values.companyEmail,
+          shipping: {
+            address: {
+              city: values.city,
+              country: values.country,
+              line1: values.address,
+              postal_code: values.zipCode,
+              state: values.zipCode,
+            },
+            name: values.name,
+          },
+          address: {
+            city: values.city,
+            country: values.country,
+            line1: values.address,
+            postal_code: values.zipCode,
+            state: values.zipCode,
+          },
+        };
+      }
+
+      newUserData = await initUser({ role: "AGENCY_OWNER" });
+
+      if (!data?.customerId && !customerId) return;
+
+      const response = await upsertAgency({
+        id: data?.id ? data.id : v4(),
+        customerId: customerId || data?.customerId || "",
+        address: values.address,
+        agencyLogo: values.agencyLogo,
+        city: values.city,
+        companyPhone: values.companyPhone,
+        country: values.country,
+        name: values.name,
+        state: values.state,
+        whiteLabel: values.whiteLabel,
+        zipCode: values.zipCode,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        companyEmail: values.companyEmail,
+        connectAccountId: "",
+        goal: 5,
+      });
+      toast({
+        title: "Created Agency",
+      });
+      if (data?.id) return router.refresh();
+      if (response) {
+        return router.refresh();
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        variant: "destructive",
+        title: "Oops!",
+        description: "could not create your agency",
+      });
+    }
   };
 
   const handleDeleteAgency = async () => {
-    console.log("Delete agency");
+    if (!data?.id) return;
+    // WIP : discontinue the subscription
+    try {
+      setDeletingAgency(true);
+      const res = await deleteAgency(data?.id);
+      toast({
+        title: "Agency Deleted",
+        description: "Your agency has been deleted",
+      });
+      router.refresh();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An error occurred while deleting the agency",
+      });
+    } finally {
+      setDeletingAgency(false);
+    }
   };
 
   return (
@@ -99,11 +194,11 @@ const AgencyDetails: React.FC<Props> = ({ data }) => {
                   <FormItem>
                     <FormLabel>Agency Logo</FormLabel>
                     <FormControl>
-                      {/* <FileUpload
+                      <FileUpload
                         apiEndpoint='agencyLogo'
                         onChange={field.onChange}
                         value={field.value}
-                      /> */}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -284,7 +379,7 @@ const AgencyDetails: React.FC<Props> = ({ data }) => {
                 )}
               />
 
-              {/* {data?.id && (
+              {data?.id && (
                 <div className='flex flex-col gap-2'>
                   <FormLabel>Create A Goal</FormLabel>
                   <FormDescription>
@@ -296,7 +391,7 @@ const AgencyDetails: React.FC<Props> = ({ data }) => {
                     defaultValue={data?.goal}
                     onValueChange={async (val) => {
                       if (!data?.id) return;
-                      // await updateAgencyDetails(data.id, { goal: val });
+                      await updateAgencyDetails(data.id, { goal: val });
                       await saveActivityLogsNotification({
                         agencyId: data.id,
                         description: `Updated the agency goal to | ${val} Sub Account`,
@@ -305,11 +400,11 @@ const AgencyDetails: React.FC<Props> = ({ data }) => {
                       router.refresh();
                     }}
                     min={1}
-                    className='bg-background !border !border-input'
+                    className='h-10 w-full rounded-md !border !border-input !bg-background px-3 py-2 text-sm !ring-offset-background placeholder:text-muted-foreground !focus-visible:outline-none !focus-visible:ring-2 !focus-visible:ring-ring !focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
                     placeholder='Sub Account Goal'
                   />
                 </div>
-              )} */}
+              )}
 
               <Button
                 type='submit'

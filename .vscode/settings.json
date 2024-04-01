@@ -6,7 +6,9 @@
     "nextjs",
     "Plura",
     "subaccount",
+    "subaccounts",
     "trpc",
-    "uploadthing"
+    "uploadthing",
+    "upsert"
   ]
 }
