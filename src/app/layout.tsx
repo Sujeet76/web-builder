@@ -6,6 +6,8 @@ import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/provider/theme-provider";
 import { ourFileRouter } from "./api/uploadthing/core";
+import ModalProvider from "@/provider/modal-provider";
+import { Toaster } from "@/components/ui/toaster";
 
 const font = DM_Sans({ subsets: ["latin"] });
 
@@ -32,7 +34,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
+          {/* <ModalProvider> */}
           {children}
+          <Toaster />
+          {/* </ModalProvider> */}
         </ThemeProvider>
       </body>
     </html>

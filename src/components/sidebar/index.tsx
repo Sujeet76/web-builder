@@ -1,6 +1,5 @@
 import { getAuthUserDetails } from "@/lib/queries";
 import MenuOptions from "./menu-option";
-import { SubAccount } from "@prisma/client";
 
 interface Props {
   id: string;
