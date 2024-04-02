@@ -240,6 +240,21 @@ const upsertAgency = async (agency: Agency, plan?: Plan) => {
   }
 };
 
+const getANotificationAndUser = async (agencyId: string) => {
+  try {
+    const response = await db.notification.findMany({
+      where: { agencyId },
+      include: { User: true },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    return response;
+  } catch (error) {
+    console.log("Error while getting notifications ", error);
+  }
+};
+
 export {
   getAuthUserDetails,
   verifyAndAcceptInvitation,
@@ -249,4 +264,5 @@ export {
   deleteAgency,
   updateAgencyDetails,
   upsertAgency,
+  getANotificationAndUser,
 };
