@@ -11,17 +11,18 @@ interface Props {
 
 const FileUpload: React.FC<Props> = ({ apiEndpoint, onChange, value }) => {
   const type = value?.split(".").pop();
+  console.log({ value, type });
 
   if (value) {
     return (
-      <div className='flex flex-col justify-center items-center aspect-square'>
+      <div className='flex flex-col justify-center items-center'>
         {type !== "pdf" ? (
           <div className='relative size-40 overflow-hidden'>
             <Image
               src={value}
-              layout='fill'
-              objectFit='cover'
-              alt='image'
+              alt='uploaded image'
+              className='object-contain'
+              fill
             />
           </div>
         ) : (

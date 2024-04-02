@@ -81,6 +81,7 @@ const AgencyDetails: React.FC<Props> = ({ data }) => {
     if (data) form.reset(data);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
+
   const handleSubmit = async (values: z.infer<typeof AgencyFormSchema>) => {
     try {
       let newUserData;
@@ -108,11 +109,11 @@ const AgencyDetails: React.FC<Props> = ({ data }) => {
           },
         };
       }
-
+      console.log("{page 1}");
       newUserData = await initUser({ role: "AGENCY_OWNER" });
 
-      if (!data?.customerId && !customerId) return;
-
+      // if (!data?.customerId && !customerId) return;
+      console.log("Page 2");
       const response = await upsertAgency({
         id: data?.id ? data.id : v4(),
         customerId: customerId || data?.customerId || "",
